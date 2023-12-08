@@ -429,26 +429,15 @@ export class App {
 
     set_num_particles(num: number) {
         this.num_particles = num;
-        this.particles = new SharedArrayBuffer(num * 4 * 4)
-        let particles = new Float32Array(this.particles)
         
         this.particlesBuffer1.destroy()
         this.particlesBuffer2.destroy()
         this.mappedBuffer.destroy()
         
         this.createBuffers()
-
-        for (let i = 0; i < num; i += 1) {
-            particles[i * 4] = (Math.random() - 0.5) * 1_000
-            particles[i * 4 + 1] = (Math.random() - 0.5) * 1_000
-            particles[i * 4 + 2] = 0
-            particles[i * 4 + 3] = 0
-        }
-        
         this.createBindGroups()
 
-        this.device.queue.writeBuffer(this.particlesBuffer1, 0, particles)
-        this.device.queue.writeBuffer(this.particlesBuffer2, 0, particles)
+        this.reset_particles()
     }
 
     update() {
@@ -543,5 +532,20 @@ export class App {
 
             this.can_update = true; // Ok now
         }
+    }
+
+    reset_particles() {
+        this.particles = new SharedArrayBuffer(this.num_particles * 4 * 4)
+        let particles = new Float32Array(this.particles)
+
+        for (let i = 0; i < this.num_particles; i += 1) {
+            particles[i * 4] = (Math.random() - 0.5) * 1_000
+            particles[i * 4 + 1] = (Math.random() - 0.5) * 1_000
+            particles[i * 4 + 2] = 0
+            particles[i * 4 + 3] = 0
+        }
+
+        this.device.queue.writeBuffer(this.particlesBuffer1, 0, particles)
+        this.device.queue.writeBuffer(this.particlesBuffer2, 0, particles)
     }
 }

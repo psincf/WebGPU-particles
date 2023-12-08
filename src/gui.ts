@@ -9,11 +9,11 @@ export function init_gui(app: App) {
     folder.add(app, "mul2").name("x2 particles")
     folder.add(app, "div2").name("/2 particles")
 
-    gui.add(app, "energy_conservation", 0, 1).listen()
+    gui.add(app, "energy_conservation", 0, 1).listen().disable()
     gui.add(app, "energy_conservation_gui", 0, 1).onChange(() => {
         app.energy_conservation = 1 - Math.pow(0.5, app.energy_conservation_gui * 10)
     })
-    gui.add(app, "power", 0, 1_000).listen()
+    gui.add(app, "power", 0, 1_000).listen().disable()
     gui.add(app, "power_gui", 0, 100).onChange(() => {
         app.power = Math.pow(10, app.power_gui / 20)
     })
@@ -26,4 +26,5 @@ export function init_gui(app: App) {
     gui.add(app, "update_mode", { CPU: UpdateMode.CPU, GPU: UpdateMode.GPU }).onChange(() => {
         app.change_update_mode(app.update_mode)
     })
+    gui.add(app, "reset_particles")
 }
