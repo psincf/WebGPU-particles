@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "module": "ES2015",
+        "moduleResolution": "Bundler",
+        "target": "ES2017",
+        "types": ["@webgpu/types"],
+        "outDir": "dist/main.js"
+    },
+    "include": ["src/*"],
+}

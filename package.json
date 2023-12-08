@@ -1,0 +1,19 @@
+{
+  "name": "webgpu-particles",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "esbuild src/main.ts --bundle --outfile=dist/main.js",
+    "auto_compile": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch"
+  },
+  "author": "",
+  "devDependencies": {
+    "@webgpu/types": "^0.1.40",
+    "esbuild": "^0.19.8",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "lil-gui": "^0.19.1"
+  }
+}
