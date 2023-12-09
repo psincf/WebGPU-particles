@@ -50,7 +50,7 @@ export class App {
     color_fast: [number, number, number, number] = [1.0, 0.0, 0.0, 1.0]
     size_particles: number = 1;
 
-    update_mode: UpdateMode = UpdateMode.CPU;
+    update_mode: UpdateMode = UpdateMode.GPU;
     update_cpu_settings: UpdateCPU = { threads: 1 };
     thread_pool: Pool;
 
