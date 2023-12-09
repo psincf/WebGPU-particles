@@ -34,4 +34,11 @@ export function init_gui(app: App) {
 
     gui.add(app, "compute_elapsed").listen().disable()
     gui.add(app, "render_elapsed").listen().disable()
+
+    const licenses = {
+        licenses: () => {
+            window.open("/licenses.html")
+        }
+    }
+    gui.add(licenses, "licenses")
 }
