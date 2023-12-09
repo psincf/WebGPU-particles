@@ -1,5 +1,7 @@
 const WORKGROUP_SIZE = 8;
 
+import { Pool } from "./pool";
+
 export type UpdateCPU = {
     threads: number;
 };
@@ -50,9 +52,12 @@ export class App {
 
     update_mode: UpdateMode = UpdateMode.CPU;
     update_cpu_settings: UpdateCPU = { threads: 1 };
+    thread_pool: Pool;
 
     can_update: Boolean = true;
 
+    compute_elapsed: number = 0;
+    render_elapsed: number = 0;
 
 
     async init() {
@@ -245,12 +250,6 @@ export class App {
                 
                 particles2[id_f].x += particles2[id_f].z;
                 particles2[id_f].y += particles2[id_f].w;
-                
-                /*
-                particles2[id_f] = particles1[id_f];
-                particles2[id_f].x += particles1[id_f].z;
-                particles2[id_f].y += particles1[id_f].w;
-                */
             }
             `
         })
@@ -298,6 +297,8 @@ export class App {
 
         this.createBuffers()
         this.createBindGroups()
+        this.thread_pool = new Pool()
+        this.update_threads()
     }
 
     createBuffers() {
@@ -393,7 +394,7 @@ export class App {
         this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformData);
     }
 
-    render() {
+    async render() {
         this.update_uniform_buffer();
         const encoder = this.device.createCommandEncoder();
 
@@ -417,6 +418,8 @@ export class App {
 
         const commandBuffer = encoder.finish()
         this.device.queue.submit([commandBuffer])
+        
+        await this.device.queue.onSubmittedWorkDone()
     }
 
     mul2() {
@@ -428,6 +431,7 @@ export class App {
     }
 
     set_num_particles(num: number) {
+        if (num > 10_000_000) { return }
         this.num_particles = num;
         
         this.particlesBuffer1.destroy()
@@ -440,17 +444,24 @@ export class App {
         this.reset_particles()
     }
 
-    update() {
+    async update() {
+        var time_begin = performance.now()
         if (this.can_update == false) { return }
         switch (this.update_mode) {
-            case UpdateMode.CPU: { this.update_cpu(); break; }
-            case UpdateMode.GPU: { this.update_gpu(); break; }
+            case UpdateMode.CPU: { await this.update_cpu_multithread(); break; }
+            case UpdateMode.GPU: { await this.update_gpu(); break; }
         }
+
+        this.compute_elapsed = performance.now() - time_begin;
+
+        time_begin = performance.now()
         
-        this.render();
+        await this.render();
+
+        this.render_elapsed = performance.now() - time_begin;
     }
 
-    update_cpu() {
+    update_cpu_singlethread() {
         this.frame = 1
 
         let particles = new Float32Array(this.particles)
@@ -479,7 +490,27 @@ export class App {
         this.device.queue.writeBuffer(this.particlesBuffer1, 0, particles)
     }
 
-    update_gpu() {
+    async update_cpu_multithread() {
+        this.frame = 1
+
+        this.thread_pool.sendWork({
+            particles: this.particles,
+            num_particles: this.num_particles,
+            mouse_position: this.mouse_position,
+            power: this.power,
+            energy_conservation: this.energy_conservation
+        })
+
+        await this.thread_pool.wait()
+        
+
+        let particles = new Float32Array(this.particles)
+        this.device.queue.writeBuffer(this.particlesBuffer1, 0, particles)
+
+        await this.device.queue.onSubmittedWorkDone()
+    }
+
+    async update_gpu() {
         this.update_uniform_buffer();
         const encoder = this.device.createCommandEncoder();
 
@@ -495,6 +526,8 @@ export class App {
 
         const commandBuffer = encoder.finish()
         this.device.queue.submit([commandBuffer])
+
+        await this.device.queue.onSubmittedWorkDone()
 
         if (this.frame == 1) {
             this.frame = 2
@@ -547,5 +580,9 @@ export class App {
 
         this.device.queue.writeBuffer(this.particlesBuffer1, 0, particles)
         this.device.queue.writeBuffer(this.particlesBuffer2, 0, particles)
+    }
+
+    update_threads() {
+        this.thread_pool.set_num_threads(this.update_cpu_settings.threads)
     }
 }

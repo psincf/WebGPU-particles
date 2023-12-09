@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "compile": "esbuild src/main.ts --bundle --outfile=dist/main.js",
-    "auto_compile": "esbuild src/main.ts --bundle --outfile=dist/main.js --watch"
+    "compile": "esbuild src/main.ts --bundle --outdir=dist",
+    "auto_compile": "esbuild src/main.ts --bundle --outdir=dist --watch"
   },
   "author": "",
   "devDependencies": {

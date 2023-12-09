@@ -12,13 +12,14 @@ const app = new App()
 app.init()
     .catch(errGpu)
     .then(() => {
-        app.set_num_particles(65_536)
+        app.set_num_particles(262_144)
         init_gui(app)
-        const updateEveryFrame = function() {
+        const updateEveryFrame = async function() {
             window.requestAnimationFrame(
                 () => {
-                    app.update()
-                    updateEveryFrame()
+                    app.update().then(() => {
+                        updateEveryFrame()
+                })
                 }
             )
         }
