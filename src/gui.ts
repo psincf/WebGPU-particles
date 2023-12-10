@@ -41,4 +41,11 @@ export function init_gui(app: App) {
         }
     }
     gui.add(licenses, "licenses")
+
+    const github = {
+        github: () => {
+            window.open("https://github.com/psincf/WebGPU-particles")
+        }
+    }
+    gui.add(github, "github")
 }
