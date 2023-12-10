@@ -31,4 +31,14 @@ function onMouseMove(e: MouseEvent) {
 }
 
 app.canvas.addEventListener("mousemove", onMouseMove)
+app.canvas.addEventListener("mousedown", (e) => {
+    if (e.button == 0) {
+        app.clicked = true
+    }
+})
+app.canvas.addEventListener("mouseup", (e) => {
+    if (e.button == 0) {
+        app.clicked = false
+    }
+})
 

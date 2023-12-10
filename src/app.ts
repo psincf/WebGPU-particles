@@ -44,6 +44,7 @@ export class App {
     energy_conservation_gui: number = 0.998;
     power: number = 10;
     power_gui: number = 10;
+    clicked: Boolean = false;
 
     color_alpha: number = 0.5;
     color_origin: [number, number, number, number] = [1.0, 1.0, 0.0, 1.0]
@@ -172,7 +173,8 @@ export class App {
                 color_alpha: f32,
                 size_particles: f32,
                 power: f32,
-                energy_conservation: f32
+                energy_conservation: f32,
+                mouse_clicked: f32
             }
 
             @group(0) @binding(0) var<uniform> uni: UniformData;
@@ -218,7 +220,8 @@ export class App {
                 color_alpha: f32,
                 size_particles: f32,
                 power: f32,
-                energy_conservation: f32
+                energy_conservation: f32,
+                mouse_clicked: f32
             }
 
             @group(0) @binding(0) var<uniform> uni: UniformData;
@@ -233,17 +236,19 @@ export class App {
 
                 particles2[id_f] = particles1[id_f];
 
-                let distance = vec2f(
-                    uni.mouse_position.x - particles2[id_f].x,
-                    uni.mouse_position.y - particles2[id_f].y
-                );
-
-                let length = length(distance);
-                let d_norm = normalize(distance);
-                
-
-                particles2[id_f].z += d_norm.x / ((1 / uni.power) * max(length, 4));
-                particles2[id_f].w += d_norm.y / ((1 / uni.power) * max(length, 4));
+                if uni.mouse_clicked > 0.5 {
+                    let distance = vec2f(
+                        uni.mouse_position.x - particles2[id_f].x,
+                        uni.mouse_position.y - particles2[id_f].y
+                    );
+    
+                    let length = length(distance);
+                    let d_norm = normalize(distance);
+                    
+    
+                    particles2[id_f].z += d_norm.x / ((1 / uni.power) * max(length, 4));
+                    particles2[id_f].w += d_norm.y / ((1 / uni.power) * max(length, 4));
+                }
                 
                 particles2[id_f].z *= uni.energy_conservation;
                 particles2[id_f].w *= uni.energy_conservation;
@@ -389,7 +394,8 @@ export class App {
             this.color_alpha,
             this.size_particles,
             this.power,
-            this.energy_conservation
+            this.energy_conservation,
+            this.clicked as unknown as number
         ])
         this.device.queue.writeBuffer(this.uniformBuffer, 0, uniformData);
     }
@@ -498,7 +504,8 @@ export class App {
             num_particles: this.num_particles,
             mouse_position: this.mouse_position,
             power: this.power,
-            energy_conservation: this.energy_conservation
+            energy_conservation: this.energy_conservation,
+            mouse_clicked: this.clicked
         })
 
         await this.thread_pool.wait()

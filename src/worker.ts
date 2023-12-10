@@ -3,7 +3,8 @@ export interface Work {
     num_particles: number,
     power: number,
     energy_conservation: number,
-    particles: SharedArrayBuffer
+    particles: SharedArrayBuffer,
+    mouse_clicked: Boolean
 }
 
 export function work() {
@@ -36,20 +37,23 @@ export function work() {
         const end = Math.trunc((work.num_particles / total) * count + work.num_particles / total)
 
         for (let i = begin; i < end; i += 1) {
-            const distance = {
-                x: work.mouse_position[0] - particles[i * 4],
-                y: work.mouse_position[1] - particles[i * 4 + 1],
-            };
 
-            const length = Math.sqrt(distance.x * distance.x + distance.y * distance.y)
+            if (work.mouse_clicked) {
+                const distance = {
+                    x: work.mouse_position[0] - particles[i * 4],
+                    y: work.mouse_position[1] - particles[i * 4 + 1],
+                };
 
-            const d_norm = {
-                x: distance.x / length,
-                y: distance.y / length
-            };
+                const length = Math.sqrt(distance.x * distance.x + distance.y * distance.y)
 
-            particles[i * 4 + 2] += d_norm.x / ((1 / work.power) * Math.max(length, 4))
-            particles[i * 4 + 3] += d_norm.y / ((1 / work.power) * Math.max(length, 4))
+                const d_norm = {
+                    x: distance.x / length,
+                    y: distance.y / length
+                };
+
+                particles[i * 4 + 2] += d_norm.x / ((1 / work.power) * Math.max(length, 4))
+                particles[i * 4 + 3] += d_norm.y / ((1 / work.power) * Math.max(length, 4))
+            }
             
             particles[i * 4 + 2] *= work.energy_conservation
             particles[i * 4 + 3] *= work.energy_conservation
