@@ -467,35 +467,6 @@ export class App {
         this.render_elapsed = performance.now() - time_begin;
     }
 
-    update_cpu_singlethread() {
-        this.frame = 1
-
-        let particles = new Float32Array(this.particles)
-        for (let i = 0; i < this.num_particles; i += 1) {
-            const distance = {
-                x: this.mouse_position[0] - particles[i * 4],
-                y: this.mouse_position[1] - particles[i * 4 + 1],
-            };
-
-            const length = Math.sqrt(distance.x * distance.x + distance.y * distance.y)
-
-            const d_norm = {
-                x: distance.x / length,
-                y: distance.y / length
-            };
-
-            particles[i * 4 + 2] += d_norm.x / ((1 / this.power) * Math.max(length, 4))
-            particles[i * 4 + 3] += d_norm.y / ((1 / this.power) * Math.max(length, 4))
-            
-            particles[i * 4 + 2] *= this.energy_conservation
-            particles[i * 4 + 3] *= this.energy_conservation
-            
-            particles[i * 4] += particles[i * 4 + 2]
-            particles[i * 4 + 1] += particles[i * 4 + 3]
-        }
-        this.device.queue.writeBuffer(this.particlesBuffer1, 0, particles)
-    }
-
     async update_cpu_multithread() {
         this.frame = 1
 
