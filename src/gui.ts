@@ -28,6 +28,7 @@ export function init_gui(app: App) {
     })
     gui.add(app.update_cpu_settings, "threads").listen().onChange(() => {
         app.update_cpu_settings.threads = Math.max(1, app.update_cpu_settings.threads)
+        app.update_cpu_settings.threads = Math.min(navigator.hardwareConcurrency, app.update_cpu_settings.threads)
         app.update_threads()
     })
     gui.add(app, "reset_particles")
