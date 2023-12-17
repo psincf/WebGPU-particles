@@ -41,9 +41,7 @@ export class App {
     particles: SharedArrayBuffer;
     num_particles: number = 1_024;
     energy_conservation: number = 0.998;
-    energy_conservation_gui: number = 0.998;
     power: number = 10;
-    power_gui: number = 10;
     clicked: Boolean = false;
 
     color_alpha: number = 0.5;
